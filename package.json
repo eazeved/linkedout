@@ -1,0 +1,34 @@
+{
+  "name": "linkedout",
+  "description": "A browser extension to fix Linkedin jobs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "verify:control": "bun .cursor/skills/verify-linkedout/bin/control-linkedout.ts",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@wxt-dev/module-react": "^1.1.5",
+    "oxlint": "^1.91.0",
+    "playwright": "^1.64.1",
+    "typescript": "^5.9.3",
+    "web-ext": "^10.5.0",
+    "wxt": "^0.21.3"
+  }
+}
