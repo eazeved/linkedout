@@ -1,0 +1,43 @@
+# The job id "check" is the status context a branch protection rule would
+# require. Renaming the job changes that context.
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+
+      # wxt runs under Node. Vite 8 needs ^20.19 or >=22.12.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      # The only type gate. Keep this step above Build. `wxt build`
+      # regenerates .wxt/ and does not type-check.
+      - name: Compile
+        run: bun run compile
+
+      - name: Build
+        run: bun run build
