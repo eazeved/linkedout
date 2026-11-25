@@ -1,16 +1,24 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import logoUrl from '@/assets/icon.svg';
 import { AccountPane } from './AccountPane';
+import { StatsPane } from './StatsPane';
 import {
   BlockedCompaniesPane,
   useBlocklistSession,
 } from '@/lib/ui/BlockedCompanies';
 import { accountStatus, useTrackerSession } from '@/lib/ui/tracker-session';
 
-type PaneId = 'blocked' | 'account';
+type PaneId = 'blocked' | 'account' | 'stats';
 
 function paneFromHash(hash: string, accountAvailable: boolean): PaneId {
-  return hash === '#account' && accountAvailable ? 'account' : 'blocked';
+  if (!accountAvailable) {
+    return 'blocked';
+  }
+  return hash === '#account'
+    ? 'account'
+    : hash === '#stats'
+      ? 'stats'
+      : 'blocked';
 }
 
 function useHash(): string {
@@ -35,41 +43,55 @@ export default function App(): ReactElement {
   const pane = paneFromHash(useHash(), accountAvailable);
 
   return (
-    <div className="settings flex min-h-screen">
+    <div className="settings flex h-screen flex-col md:flex-row">
       <nav
         aria-label="Settings"
-        className="sticky top-0 flex h-screen w-[280px] flex-none flex-col gap-1 border-r border-border p-4"
+        className="flex flex-none flex-col gap-1 border-b border-border px-2 py-3 md:w-[280px] md:border-r md:border-b-0 md:p-4"
       >
-        <div className="flex items-center gap-2.5 px-3 pt-1 pb-4 text-base font-semibold">
+        <div className="flex items-center gap-2.5 px-3 pb-2 text-base font-semibold md:pt-1 md:pb-4">
           <img src={logoUrl} alt="" width={22} height={22} />
           LinkedOut Settings
         </div>
-        <NavItem
-          href="#blocked"
-          current={pane === 'blocked'}
-          label="Blocked companies"
-          aside={blocklist.companies?.length?.toString()}
-        />
-        {accountAvailable ? (
+        <div className="flex flex-wrap gap-0.5 md:gap-1 md:flex-col md:flex-nowrap">
           <NavItem
-            href="#account"
-            current={pane === 'account'}
-            label="Account"
-            aside={status?.text}
-            alert={status?.needsYou}
+            href="#blocked"
+            current={pane === 'blocked'}
+            label="Blocked companies"
+            aside={blocklist.companies?.length?.toString()}
           />
-        ) : null}
+          {accountAvailable ? (
+            <>
+              <NavItem
+                href="#stats"
+                current={pane === 'stats'}
+                label="Stats"
+                aside={undefined}
+              />
+              <NavItem
+                href="#account"
+                current={pane === 'account'}
+                label="Account"
+                aside={status?.text}
+                alert={status?.needsYou}
+              />
+            </>
+          ) : null}
+        </div>
       </nav>
-      <main className="flex h-screen min-w-0 max-w-[760px] flex-1 flex-col pt-9 pr-10 pb-8 pl-14">
-        {pane === 'account' ? (
-          <AccountPane session={tracker} />
-        ) : (
-          <BlockedCompaniesPane
-            companies={blocklist.companies}
-            failureText={blocklist.failureText}
-            onUnblock={blocklist.unblock}
-          />
-        )}
+      <main className="relative min-w-0 flex-1 overflow-y-auto px-5 pt-6 pb-8 sm:px-8 md:pt-9 lg:px-14">
+        <div className="mx-auto flex min-h-full max-w-[760px] flex-col">
+          {pane === 'account' ? (
+            <AccountPane session={tracker} />
+          ) : pane === 'stats' ? (
+            <StatsPane session={tracker} />
+          ) : (
+            <BlockedCompaniesPane
+              companies={blocklist.companies}
+              failureText={blocklist.failureText}
+              onUnblock={blocklist.unblock}
+            />
+          )}
+        </div>
       </main>
     </div>
   );
@@ -86,12 +108,12 @@ function NavItem(props: {
     <a
       href={props.href}
       aria-current={props.current ? 'page' : undefined}
-      className={`flex h-9 items-center gap-2 rounded-md border border-b-2 px-3 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background ${props.current ? 'border-border border-b-key-edge bg-key font-semibold' : 'border-transparent hover:bg-muted'}`}
+      className={`flex h-9 flex-none items-center gap-1.5 rounded-md whitespace-nowrap md:flex-auto md:gap-2 md:px-3 border border-b-2 px-1.5 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background ${props.current ? 'border-border border-b-key-edge bg-key font-semibold' : 'border-transparent hover:bg-muted'}`}
     >
-      <span className="flex-1">{props.label}</span>
+      <span className="md:flex-1">{props.label}</span>
       {props.aside === undefined ? null : (
         <span
-          className={`text-[13px] font-normal tabular-nums ${props.alert === true ? 'text-destructive' : 'text-muted-foreground'}`}
+          className={`text-[13px] font-normal tabular-nums ${props.alert === true ? 'text-destructive' : 'hidden text-muted-foreground sm:inline'}`}
         >
           {props.aside}
         </span>

@@ -146,7 +146,7 @@ function unexpectedKind(kind: never): never {
 
 const SERIAL_EPOCH_DAYS = 25569;
 
-function sheetsSerial(local: string): number | undefined {
+export function sheetsSerial(local: string): number | undefined {
   const match = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}):(\d{2}))?$/.exec(local);
   if (match === null) {
     return undefined;
@@ -154,6 +154,16 @@ function sheetsSerial(local: string): number | undefined {
   const [, y, mo, d, h = '0', mi = '0', se = '0'] = match;
   const ms = Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(se));
   return ms / 86_400_000 + SERIAL_EPOCH_DAYS;
+}
+
+export function appliedOnUrl(id: string): string {
+  const letter = String.fromCharCode(65 + columnIndex('Applied on'));
+  const range = encodeURIComponent(`${APPLICATIONS_TAB}!${letter}:${letter}`);
+  const query = new URLSearchParams({
+    valueRenderOption: 'UNFORMATTED_VALUE',
+    dateTimeRenderOption: 'SERIAL_NUMBER',
+  });
+  return `${SHEETS}/${encodeURIComponent(id)}/values/${range}?${query}`;
 }
 
 export function sheetTabsUrl(id: string): string {

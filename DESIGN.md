@@ -323,7 +323,9 @@ Top to bottom:
 
 Height follows content.
 
-The settings page is a separate tab, sized for reading rather than glancing: 15px body text and 20px pane titles. A 280px sidebar runs the full height of the tab's left edge with 16px padding on both sides, and the selected pane sits 56px to its right, capped near 760px.
+The settings page is a separate tab, sized for reading rather than glancing: 15px body text and 20px pane titles. A 280px sidebar runs the full height of the tab's left edge with 16px padding on both sides, and the selected pane is a column capped near 760px, centred in the space to its right with at least 56px on each side. The tab itself never scrolls. The pane area scrolls, and its scrollbar appears only when the content is taller than the window, so the sidebar's hairline always runs top to bottom.
+
+Below 768px the sidebar becomes a strip across the top: the logo and name, then the items in one row (they wrap only if they cannot fit), with a hairline under it. The strip stays put and the pane below takes the full width, with 20px side padding (32px from 640px) and the same scroll rule. Items drop their figure or status below 640px, except `Needs you`, which always shows. In the Stats pane the four figures sit two by two below 640px, the bests' label column is 116px, and each chart is drawn at its real width, so its text stays 11px: the bars narrow and the week labels thin out instead of the text shrinking. In the Account pane, below 640px each label sits above its value and key. Nothing scrolls sideways at any width down to 292px, the width of the demo's frame on a 326px phone.
 
 ### Website
 
@@ -438,12 +440,25 @@ Actions sit at the right end of their row.
 
 Disconnect is not in the popup. It lives in the settings page's Account pane.
 
+### Stats Strip
+
+One line of Pencil text directly under the Status row, 28px tall, 12px from the left edge: `Today 3 · This week 11 · Last week 9`, with the numbers in Figure type. No arrows, no colour, no comparison marks. It is left out when the tracker is not connected and while LinkedOut has no copy of the sheet's dates.
+
+### Bar Chart
+
+A hand-drawn SVG that fills the pane's width, with no library and no legend. Two or three dashed Rule gridlines sit at round whole numbers with small Pencil labels at the left, above one hairline baseline. Bars have 3px rounded tops and are drawn in Pencil, and the current day or week is drawn in Ink so this week reads against the weeks before it. A dashed Blue line marks the average since the first application (per day on the daily chart, per week on the weekly chart, the same figure as the `Weekly average` row), labelled `avg 2.3` in Blue in the axis gutter to the left of the plot, where no bar can cover it (a tick label that would collide with it is left out), with a whole number written without a decimal (`avg 7`), and is left out when the average is zero or above the top of the chart. Only the current bar, the tallest bar and any broken bar carry their figure. The axis labels are short dates in Pencil, one under each Monday on the daily chart and under every week on the weekly chart. All colour comes from the custom properties, so both schemes follow.
+
+The scale is linear to a round top. When the tallest bar is above 20 and more than three times the second tallest, the top drops to 1.4 times the second tallest (never below 4) so ordinary days stay readable. Bars above it are drawn to the top, cut by two Paper-coloured diagonal strokes, with their real figure above them. There is no switch for the scale.
+
+Hovering a bar's whole column, or focusing the chart, shows a small tooltip in Ink with Paper text above the bar: the figure in bold (`4 applied`), the bar's label, and `1.8× your average` or `20% below average` (left out when the average is zero). The other bars dim while one is shown, and the dimming fades in unless the reader prefers reduced motion. The chart is one tab stop. It starts on the current bar, the left and right arrow keys step between bars, and Escape or leaving the chart hides the tooltip. A ring in Blue-ring colour shows keyboard focus. The bars carry no native browser tooltip, so the custom one is the only hover label. The chart is named by an `aria-label`, and a visually hidden table with one row per bar, such as `Week of Nov 16` and `10 applications`, is its text alternative.
+
 ### Settings Page
 
 A sidebar and one pane.
 
-- **Sidebar.** The logo and `LinkedOut Settings` (the product's name for the page, so it is title case), then two items: `Blocked companies` with its count, and `Account` with `On`, `Off`, or `Needs you` in Failure Red. The selected item is drawn as a raised key. Account is left out in a build without Google settings.
+- **Sidebar.** The logo and `LinkedOut Settings` (the product's name for the page, so it is title case), then up to three items: `Blocked companies` with its count, `Stats` with no figure, and `Account` with `On`, `Off`, or `Needs you` in Failure Red. The selected item is drawn as a raised key. Stats and Account are left out in a build without Google settings.
 - **Blocked companies.** A title, one line of guidance in Pencil, a sunken search well with a search icon and a `/` key hint (pressing `/` focuses it), then one 44px row per matching company, divided by hairlines: the name and an × icon button named `Unblock <Company>`. Unblocking is immediate. A search with no match reads `No blocked company matches "<text>".` The empty list reads "No blocked companies. Block one from a job card or the job details." A failed unblock shows one Failure Red line under the title and keeps the row. An unreadable list shows "Could not load blocked companies." and no rows.
+- **Stats.** A title and one line of guidance, then four headline figures in a row (Today, This week, This month, All time: a Pencil label over the figure in 20px semibold with tabular digits), the two bar charts each under a small Pencil heading, and the bests as 44px rows with a 150px label column. A `Last updated …` line in Pencil sits above the figures only when the latest read failed and the saved numbers are on screen. Not connected, the pane shows one line of guidance with the `Connect Google Sheets` key at its right end.
 - **Account.** A title and one line of guidance, then 48px rows with a 150px label column: `Google account` with the account and a neutral `Disconnect` key (and `Reconnect` before it when sign-in has expired), `Sheet` with its name and the Open sheet key, and `Jobs added` with the count. Not connected, the pane holds the `Google account` row with `Connect Google Sheets` at its right end. A Pencil line under the rows says what disconnecting does.
 
 ### Website Keys
@@ -509,6 +524,7 @@ These render on the LinkedIn page, not in the popup. The card control and the jo
 - **Don't** fill a button with blue, or fill one blue on hover.
 - **Don't** use blue for anything that is not on, a fix, or focus.
 - **Don't** add a success colour, a banner, or a toast.
+- **Don't** add goals, streaks, badges, arrows or colour to the stats.
 - **Don't** add shadows inside the popup or the settings page.
 - **Don't** borrow LinkedIn's pills, type or card style.
 - **Don't** add dropdowns or menus to the popup; every daily control is one click.
